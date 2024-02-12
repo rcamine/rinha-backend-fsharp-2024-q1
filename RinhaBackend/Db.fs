@@ -1,6 +1,5 @@
 ﻿module Db
 
-open Transaction
 open Donald
 open Microsoft.Data.Sqlite
 
@@ -11,7 +10,7 @@ type Db(connString: string) =
     member _.Initialize() = ()
 
     //TODO: should consider credit/debit aswell
-    member _.AddNewTransaction transaction =
+    member _.AddNewTransaction(transaction: Transaction.Model) =
         use conn = new SqliteConnection(connString)
 
         try
@@ -34,12 +33,12 @@ type Db(connString: string) =
             |> fun x ->
                 match x with
                 | Some x -> Ok x
-                | None -> Error NotFound
+                | None -> Error Transaction.NotFound
         with ex ->
-            Error(DbError ex.Message)
+            Error(Transaction.DbError ex.Message)
 
     //TODO: try catch
-    member _.GetCustomer customerId =
+    member _.GetCustomer customerId : Option<Transaction.Customer> =
         use conn = new SqliteConnection(connString)
 
         conn

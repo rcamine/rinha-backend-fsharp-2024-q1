@@ -2,7 +2,6 @@ module HttpServer
 
 open Db
 open Wire
-open Transaction
 open Giraffe
 open Giraffe.EndpointRouting
 open Microsoft.AspNetCore.Http
@@ -21,15 +20,15 @@ let handleAddTransaction (customerId: int) : HttpHandler =
         let customerOrError = db.GetCustomer customerId
 
         let transactionResult =
-            ofRequest request customerOrError
-            |> Result.bind validate
+            Transaction.ofRequest request customerOrError
+            |> Result.bind Transaction.validate
             |> Result.bind db.AddNewTransaction
 
         match transactionResult with
         | Ok t -> Successful.OK { Limite = t.Customer.Limite ; Saldo = t.Customer.Saldo } next ctx
-        | Error e when e = NotFound -> RequestErrors.NOT_FOUND "" next ctx
-        | Error e when e = InvalidRequest -> RequestErrors.BAD_REQUEST "" next ctx
-        | Error e when e = Unprocessable -> RequestErrors.UNPROCESSABLE_ENTITY "" next ctx
+        | Error e when e = Transaction.NotFound -> RequestErrors.NOT_FOUND "" next ctx
+        | Error e when e = Transaction.InvalidRequest -> RequestErrors.BAD_REQUEST "" next ctx
+        | Error e when e = Transaction.Unprocessable -> RequestErrors.UNPROCESSABLE_ENTITY "" next ctx
         | Error _ -> ServerErrors.INTERNAL_ERROR "" next ctx
 
 // Endpoints

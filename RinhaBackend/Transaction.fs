@@ -1,4 +1,5 @@
-﻿module Transaction
+﻿[<RequireQualifiedAccess>]
+module Transaction
 
 open Wire
 
@@ -7,18 +8,18 @@ type Customer =
       Limite: int
       Saldo: int }
 
-type TransactionType =
+type Type =
     | Credit
     | Debit
     | Invalid
 
-type Transaction =
+type Model =
     { Valor: int
-      Tipo: TransactionType
+      Tipo: Type
       Descricao: string
       Customer: Customer }
 
-type TransactionError =
+type Error =
     | Unprocessable
     | NotFound
     | InvalidRequest
