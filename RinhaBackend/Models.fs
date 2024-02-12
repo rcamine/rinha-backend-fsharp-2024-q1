@@ -35,10 +35,6 @@ module Transaction =
     let validate transaction =
         match transaction with
         | transaction when transaction.Tipo = Invalid -> Error InvalidRequest
-        | _ -> Ok transaction
-
-    let isProcessable transaction =
-        match transaction with
         | transaction when transaction.Valor > transaction.Customer.Limite -> Error Unprocessable
         | _ -> Ok transaction
 

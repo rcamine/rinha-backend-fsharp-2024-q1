@@ -22,7 +22,6 @@ let handleAddTransaction (customerId: int) : HttpHandler =
         let transactionResult =
             Transaction.ofRequest request customerOrError
             |> Result.bind Transaction.validate
-            |> Result.bind Transaction.isProcessable
             |> Result.bind db.AddNewTransaction
 
         match transactionResult with
