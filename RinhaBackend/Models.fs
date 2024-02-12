@@ -4,6 +4,7 @@ type AddTransactionError =
     | Unprocessable
     | NotFound
     | InvalidRequest
+    | DbError of string
 
 type TransactionType =
     | C
@@ -31,9 +32,14 @@ type Transaction =
       Customer: Customer }
 
 module Transaction =
-    let validate (transaction: Transaction) =
+    let validate transaction =
         match transaction with
         | transaction when transaction.Tipo = Invalid -> Error InvalidRequest
+        | _ -> Ok transaction
+
+    let isProcessable transaction =
+        match transaction with
+        | transaction when transaction.Valor > transaction.Customer.Limite -> Error Unprocessable
         | _ -> Ok transaction
 
     let ofRequest (request: TransactionRequest) customerOption =

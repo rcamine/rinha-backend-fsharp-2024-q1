@@ -7,12 +7,6 @@ open Giraffe.EndpointRouting
 open Microsoft.AspNetCore.Http
 open Microsoft.Extensions.Configuration
 
-// Helpers
-let okResultOr errorType aOption =
-    match aOption with
-    | Some x -> Ok x
-    | None -> Error errorType
-
 let dbFromCtx (ctx: HttpContext) =
     ctx.GetService<IConfiguration>().GetConnectionString("DefaultConnection") |> Db
 
@@ -23,21 +17,16 @@ let handleAddTransaction (customerId: int) : HttpHandler =
     fun (next: HttpFunc) (ctx: HttpContext) ->
         let db = ctx |> dbFromCtx
         let request = ctx.BindJsonAsync<TransactionRequest>().Result
+        let customerOrError = db.GetCustomer customerId
 
         let transactionResult =
-            db.GetCustomer customerId
-            |> Transaction.ofRequest request
+            Transaction.ofRequest request customerOrError
             |> Result.bind Transaction.validate
-            //|> TODO: se saldo vai ficar negativo, retorno erro unprocessable
-            |> Result.bind (fun t -> db.AddNewTransaction t |> okResultOr NotFound)
+            |> Result.bind Transaction.isProcessable
+            |> Result.bind db.AddNewTransaction
 
         match transactionResult with
-        | Ok t ->
-            Successful.OK
-                { Limite = t.Customer.Limite
-                  Saldo = t.Customer.Saldo }
-                next
-                ctx
+        | Ok t -> Successful.OK { Limite = t.Customer.Limite ; Saldo = t.Customer.Saldo } next ctx
         | Error e when e = NotFound -> RequestErrors.NOT_FOUND "" next ctx
         | Error e when e = InvalidRequest -> RequestErrors.BAD_REQUEST "" next ctx
         | Error e when e = Unprocessable -> RequestErrors.UNPROCESSABLE_ENTITY "" next ctx
