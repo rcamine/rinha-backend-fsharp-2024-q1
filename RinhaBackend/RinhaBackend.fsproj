@@ -14,7 +14,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Include="Models.fs" />
+    <Compile Include="Wire.fs" />
+    <Compile Include="Transaction.fs" />
     <Compile Include="Db.fs" />
     <Compile Include="HttpServer.fs" />
     <Compile Include="Program.fs" />

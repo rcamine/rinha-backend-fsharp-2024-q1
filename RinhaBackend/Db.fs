@@ -1,14 +1,16 @@
 ﻿module Db
 
+open Transaction
 open Donald
 open Microsoft.Data.Sqlite
-open Models
 
 //TODO: is this the best approach to have a connString? I think other projects use it as a method
 type Db(connString: string) =
 
+    //TODO: insert values and call it from Program.fs
     member _.Initialize() = ()
 
+    //TODO: should consider credit/debit aswell
     member _.AddNewTransaction transaction =
         use conn = new SqliteConnection(connString)
 

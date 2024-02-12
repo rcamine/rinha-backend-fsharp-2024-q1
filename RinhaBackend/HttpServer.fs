@@ -1,7 +1,8 @@
 module HttpServer
 
 open Db
-open Models
+open Wire
+open Transaction
 open Giraffe
 open Giraffe.EndpointRouting
 open Microsoft.AspNetCore.Http
@@ -20,8 +21,8 @@ let handleAddTransaction (customerId: int) : HttpHandler =
         let customerOrError = db.GetCustomer customerId
 
         let transactionResult =
-            Transaction.ofRequest request customerOrError
-            |> Result.bind Transaction.validate
+            ofRequest request customerOrError
+            |> Result.bind validate
             |> Result.bind db.AddNewTransaction
 
         match transactionResult with
