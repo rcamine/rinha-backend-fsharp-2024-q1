@@ -1,9 +1,11 @@
 module RinhaBackend.App
 
 open System
+open System.Text.Json
 open System.Text.Json.Serialization
 open Microsoft.AspNetCore.Builder
 open Microsoft.AspNetCore.Hosting
+open Microsoft.AspNetCore.Http.Timeouts
 open Microsoft.Extensions.Hosting
 open Microsoft.Extensions.Logging
 open Microsoft.Extensions.DependencyInjection
@@ -27,11 +29,17 @@ let configureApp (app: IApplicationBuilder) =
         .UseEndpoints(fun routeBuilder -> routeBuilder.MapGiraffeEndpoints(HttpServer.endpoints))
     |> ignore
 
+
 let configureServices (services: IServiceCollection) =
+    services.AddRequestTimeouts(fun options ->
+        options.DefaultPolicy <- RequestTimeoutPolicy(Timeout = TimeSpan.FromSeconds(60.0)))
+    |> ignore
+
     services.AddRouting() |> ignore
     services.AddGiraffe() |> ignore
     let serializationOptions = SystemTextJson.Serializer.DefaultOptions
     serializationOptions.Converters.Add(JsonFSharpConverter(JsonUnionEncoding.FSharpLuLike))
+    serializationOptions.PropertyNamingPolicy <- JsonNamingPolicy.SnakeCaseLower
 
     services.AddSingleton<Json.ISerializer>(SystemTextJson.Serializer(serializationOptions))
     |> ignore
