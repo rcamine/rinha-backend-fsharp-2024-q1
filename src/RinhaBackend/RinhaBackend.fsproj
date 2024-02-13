@@ -24,6 +24,7 @@
 
   <ItemGroup>
     <Content Include="appsettings.json" />
+    <Content Include="db.db" />
   </ItemGroup>
 
 </Project>
