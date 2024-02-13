@@ -11,6 +11,11 @@ Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "RinhaBackend", "src\RinhaBa
 EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "RinhaBackend.Tests", "test\RinhaBackend.Tests\RinhaBackend.Tests.fsproj", "{3302776C-58F1-4704-A3F0-FCCF3E47CDCA}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "scripts", "scripts", "{7135A411-BFA1-4F16-8B07-AE335B17ABAE}"
+	ProjectSection(SolutionItems) = preProject
+		scripts\HttpRequests.fsx = scripts\HttpRequests.fsx
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
