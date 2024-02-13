@@ -20,7 +20,7 @@
     <Compile Include="Db.fs" />
     <Compile Include="HttpServer.fs" />
     <Compile Include="Program.fs" />
-    <None Include="Requests.fsx" />
+    <None Include="HttpRequests.fsx" />
   </ItemGroup>
 
   <ItemGroup>
