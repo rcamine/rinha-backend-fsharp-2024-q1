@@ -1,23 +1,15 @@
-﻿[<RequireQualifiedAccess>]
-module Transaction
+﻿namespace RinhaBackend
 
-open Wire
-
-type Customer =
-    { CustomerId: int
-      Limite: int
-      Saldo: int }
-
-type Type =
+type Mode =
     | Credit
     | Debit
     | Invalid
 
-type Model =
-    { Valor: int
-      Tipo: Type
-      Descricao: string
-      Customer: Customer }
+type TransactionType =
+    { Amount: int
+      Mode: Mode
+      Description: string
+      Customer: CustomerType }
 
 type Error =
     | Unprocessable
@@ -25,23 +17,24 @@ type Error =
     | InvalidRequest
     | DbError of string
 
-let validate transaction =
-    match transaction with
-    | transaction when transaction.Tipo = Invalid -> Error InvalidRequest
-    //TODO: finish this validation, should consider credit/debit as well
-    | transaction when transaction.Valor > transaction.Customer.Limite -> Error Unprocessable
-    | _ -> Ok transaction
+module Transaction =
+    let validate transaction =
+        match transaction with
+        | transaction when transaction.Mode = Invalid -> Error InvalidRequest
+        //TODO: finish this validation, should consider credit/debit as well
+        | transaction when transaction.Amount > transaction.Customer.Limit -> Error Unprocessable
+        | _ -> Ok transaction
 
-let ofRequest (request: TransactionRequest) customerOption =
-    match customerOption with
-    | Some customer ->
-        Ok
-            { Valor = request.Valor
-              Tipo =
-                match request.Tipo with
-                | "c" -> Credit
-                | "d" -> Debit
-                | _ -> Invalid
-              Descricao = request.Descricao
-              Customer = customer }
-    | None -> Error NotFound
+    let create request customerOption =
+        match customerOption with
+        | None -> Error NotFound
+        | Some customer ->
+            Ok
+                { Amount = request.Valor
+                  Mode =
+                    match request.Tipo with
+                    | "c" -> Credit
+                    | "d" -> Debit
+                    | _ -> Invalid
+                  Description = request.Descricao
+                  Customer = customer }

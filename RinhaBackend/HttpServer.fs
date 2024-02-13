@@ -1,34 +1,30 @@
-module HttpServer
+module RinhaBackend.HttpServer
 
 open Db
-open Wire
 open Giraffe
 open Giraffe.EndpointRouting
 open Microsoft.AspNetCore.Http
 open Microsoft.Extensions.Configuration
-
-let dbFromCtx (ctx: HttpContext) =
-    ctx.GetService<IConfiguration>().GetConnectionString("DefaultConnection") |> Db
 
 // Handlers
 let handleGetStatement (clientId: int) : HttpHandler = (text $"{clientId}")
 
 let handleAddTransaction (customerId: int) : HttpHandler =
     fun (next: HttpFunc) (ctx: HttpContext) ->
-        let db = ctx |> dbFromCtx
+        let db = ctx.GetService<IConfiguration>().GetConnectionString("DefaultConnection") |> Db
         let request = ctx.BindJsonAsync<TransactionRequest>().Result
-        let customerOrError = db.GetCustomer customerId
-
-        let transactionResult =
-            Transaction.ofRequest request customerOrError
+        let customerOption = db.GetCustomer customerId
+        
+        let result =
+            Transaction.create request customerOption
             |> Result.bind Transaction.validate
-            |> Result.bind db.AddNewTransaction
-
-        match transactionResult with
-        | Ok t -> Successful.OK { Limite = t.Customer.Limite ; Saldo = t.Customer.Saldo } next ctx
-        | Error e when e = Transaction.NotFound -> RequestErrors.NOT_FOUND "" next ctx
-        | Error e when e = Transaction.InvalidRequest -> RequestErrors.BAD_REQUEST "" next ctx
-        | Error e when e = Transaction.Unprocessable -> RequestErrors.UNPROCESSABLE_ENTITY "" next ctx
+            |> Result.bind db.AddTransaction
+        
+        match result with
+        | Ok tx -> Successful.OK { Limite = tx.Customer.Limit ; Saldo = tx.Customer.Balance } next ctx
+        | Error err when err = NotFound -> RequestErrors.NOT_FOUND "" next ctx
+        | Error err when err = InvalidRequest -> RequestErrors.BAD_REQUEST "" next ctx
+        | Error err when err = Unprocessable -> RequestErrors.UNPROCESSABLE_ENTITY "" next ctx
         | Error _ -> ServerErrors.INTERNAL_ERROR "" next ctx
 
 // Endpoints

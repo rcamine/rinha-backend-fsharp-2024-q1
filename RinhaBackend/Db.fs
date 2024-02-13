@@ -1,4 +1,4 @@
-﻿module Db
+﻿module RinhaBackend.Db
 
 open Donald
 open Microsoft.Data.Sqlite
@@ -10,41 +10,36 @@ type Db(connString: string) =
     member _.Initialize() = ()
 
     //TODO: should consider credit/debit aswell
-    member _.AddNewTransaction(transaction: Transaction.Model) =
+    member _.AddTransaction transaction =
         use conn = new SqliteConnection(connString)
 
         try
             conn
             |> Db.newCommand "UPDATE clientes SET saldo = saldo + @valor WHERE id = @customerId"
             |> Db.setParams
-                [ "@valor", SqlType.Int transaction.Valor
+                [ "@valor", SqlType.Int transaction.Amount
                   "@customerId", SqlType.Int transaction.Customer.CustomerId ]
             |> Db.exec
 
             conn
-            |> Db.newCommand "SELECT id, saldo, limite FROM clientes WHERE id = @customerId"
+            |> Db.newCommand "SELECT saldo, limite FROM clientes WHERE id = @customerId"
             |> Db.setParams [ "@customerId", SqlType.Int transaction.Customer.CustomerId ]
             |> Db.querySingle (fun rd ->
                 { transaction with
                     Customer =
-                        { CustomerId = rd.ReadInt32 "id"
-                          Saldo = rd.ReadInt32 "saldo"
-                          Limite = rd.ReadInt32 "limite" } })
-            |> fun x ->
-                match x with
-                | Some x -> Ok x
-                | None -> Error Transaction.NotFound
+                        Customer.create transaction.Customer.CustomerId (rd.ReadInt32 "saldo") (rd.ReadInt32 "limite") })
+            |> fun txOption ->
+                match txOption with
+                | Some tx -> Ok tx
+                | None -> Error NotFound
         with ex ->
-            Error(Transaction.DbError ex.Message)
+            Error(DbError ex.Message)
 
     //TODO: try catch
-    member _.GetCustomer customerId : Option<Transaction.Customer> =
+    member _.GetCustomer customerId =
         use conn = new SqliteConnection(connString)
 
         conn
         |> Db.newCommand "SELECT id, saldo, limite FROM clientes WHERE id = @customerId"
         |> Db.setParams [ "@customerId", SqlType.Int customerId ]
-        |> Db.querySingle (fun rd ->
-            { CustomerId = customerId
-              Saldo = rd.ReadInt32 "saldo"
-              Limite = rd.ReadInt32 "limite" })
+        |> Db.querySingle (fun rd -> Customer.create customerId (rd.ReadInt32 "saldo") (rd.ReadInt32 "limite"))

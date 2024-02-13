@@ -1,4 +1,4 @@
-﻿module Wire
+﻿namespace RinhaBackend
 
 [<CLIMutable>]
 type TransactionRequest =
