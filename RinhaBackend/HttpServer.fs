@@ -13,10 +13,10 @@ let handleAddTransaction (customerId: int) : HttpHandler =
     fun (next: HttpFunc) (ctx: HttpContext) ->
         let db = ctx.GetService<IConfiguration>().GetConnectionString("DefaultConnection") |> Db
         let request = ctx.BindJsonAsync<TransactionRequest>().Result
-        let customerOption = db.GetCustomer customerId
         
         let result =
-            Transaction.create request customerOption
+            db.GetCustomer customerId
+            |> Result.bind (Transaction.create request) 
             |> Result.bind Transaction.validate
             |> Result.bind db.AddTransaction
         

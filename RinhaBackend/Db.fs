@@ -35,11 +35,14 @@ type Db(connString: string) =
         with ex ->
             Error(DbError ex.Message)
 
-    //TODO: try catch
     member _.GetCustomer customerId =
         use conn = new SqliteConnection(connString)
 
-        conn
-        |> Db.newCommand "SELECT id, saldo, limite FROM clientes WHERE id = @customerId"
-        |> Db.setParams [ "@customerId", SqlType.Int customerId ]
-        |> Db.querySingle (fun rd -> Customer.create customerId (rd.ReadInt32 "saldo") (rd.ReadInt32 "limite"))
+        try
+            conn
+            |> Db.newCommand "SELECT id, saldo, limite FROM clientes WHERE id = @customerId"
+            |> Db.setParams [ "@customerId", SqlType.Int customerId ]
+            |> Db.querySingle (fun rd -> Customer.create customerId (rd.ReadInt32 "saldo") (rd.ReadInt32 "limite"))
+            |> Ok
+        with ex ->
+            Error(DbError ex.Message)

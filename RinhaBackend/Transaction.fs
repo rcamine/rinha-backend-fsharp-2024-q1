@@ -5,7 +5,7 @@ type TransactionType =
     | Debit
     | Invalid
 
-type TransactionError =
+type Error =
     | Unprocessable
     | NotFound
     | InvalidRequest
