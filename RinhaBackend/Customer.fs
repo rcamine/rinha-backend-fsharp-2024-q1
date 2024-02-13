@@ -1,10 +1,11 @@
 ﻿namespace RinhaBackend
 
-type CustomerType =
+type Customer =
     { CustomerId: int
       Limit: int
       Balance: int }
 
+[<RequireQualifiedAccess>]
 module Customer =
     let create customerId limit balance =
         { CustomerId = customerId

@@ -1,26 +1,27 @@
 ﻿namespace RinhaBackend
 
-type Mode =
+type TransactionType =
     | Credit
     | Debit
     | Invalid
 
-type TransactionType =
-    { Amount: int
-      Mode: Mode
-      Description: string
-      Customer: CustomerType }
-
-type Error =
+type TransactionError =
     | Unprocessable
     | NotFound
     | InvalidRequest
     | DbError of string
 
+type Transaction =
+    { Amount: int
+      Type: TransactionType
+      Description: string
+      Customer: Customer }
+
+[<RequireQualifiedAccess>]
 module Transaction =
     let validate transaction =
         match transaction with
-        | transaction when transaction.Mode = Invalid -> Error InvalidRequest
+        | transaction when transaction.Type = Invalid -> Error InvalidRequest
         //TODO: finish this validation, should consider credit/debit as well
         | transaction when transaction.Amount > transaction.Customer.Limit -> Error Unprocessable
         | _ -> Ok transaction
@@ -31,7 +32,7 @@ module Transaction =
         | Some customer ->
             Ok
                 { Amount = request.Valor
-                  Mode =
+                  Type =
                     match request.Tipo with
                     | "c" -> Credit
                     | "d" -> Debit
