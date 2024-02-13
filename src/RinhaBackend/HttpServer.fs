@@ -22,10 +22,10 @@ let handleAddTransaction (customerId: int) : HttpHandler =
         
         match result with
         | Ok tx -> Successful.OK { Limite = tx.Customer.Limit ; Saldo = tx.Customer.Balance } next ctx
-        | Error err when err = NotFound -> RequestErrors.NOT_FOUND "" next ctx
-        | Error err when err = InvalidRequest -> RequestErrors.BAD_REQUEST "" next ctx
-        | Error err when err = Unprocessable -> RequestErrors.UNPROCESSABLE_ENTITY "" next ctx
-        | Error _ -> ServerErrors.INTERNAL_ERROR "" next ctx
+        | Error NotFound -> RequestErrors.NOT_FOUND "" next ctx
+        | Error InvalidRequest -> RequestErrors.BAD_REQUEST "" next ctx
+        | Error Unprocessable -> RequestErrors.UNPROCESSABLE_ENTITY "" next ctx
+        | Error (DbError _) -> ServerErrors.INTERNAL_ERROR "" next ctx
 
 // Endpoints
 let endpoints =
