@@ -10,8 +10,8 @@ type TransacaoResponse = { Limite: int; Saldo: int }
     body
 
     jsonSerialize
-        {| valor = 100
-           tipo = "C"
+        {| valor = -100
+           tipo = "c"
            descricao = "Teste" |}
 }
 |> Response.deserializeJson<TransacaoResponse>

@@ -3,10 +3,10 @@
 open Donald
 open Microsoft.Data.Sqlite
 
-//TODO: is this the best approach to have a connString? I think other projects use it as a method
+//TODO: is this the best approach to have a connString? I think other projects use it as a method, maybe AddSingleton 
+//TODO: setup DbUp to handle database migrations
 type Db(connString: string) =
 
-    //TODO: insert values and call it from Program.fs
     member _.Initialize() =
         use conn = new SqliteConnection(connString)
 
@@ -41,7 +41,7 @@ type Db(connString: string) =
              INSERT INTO cliente (id, saldo, limite) VALUES (5, 0, -500000);"
         |> Db.exec
 
-    //TODO: should consider credit/debit aswell
+    //TODO: need to finish this method
     member _.AddTransaction transaction =
         use conn = new SqliteConnection(connString)
 

@@ -21,8 +21,9 @@ type Transaction =
 module Transaction =
     let validate transaction =
         match transaction with
+        //TODO: check for negative inputs, etc.
         | transaction when transaction.Type = Invalid -> Error InvalidRequest
-        //TODO: finish this validation, should consider credit/debit as well
+        //TODO: need to finish this validation, this is just a sample, btw should consider credit/debit as well
         | transaction when transaction.Amount > transaction.Customer.Limit -> Error Unprocessable
         | _ -> Ok transaction
 
