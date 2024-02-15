@@ -3,43 +3,7 @@
 open Donald
 open Microsoft.Data.Sqlite
 
-//TODO: is this the best approach to have a connString? I think other projects use it as a method, maybe AddSingleton 
-//TODO: setup DbUp to handle database migrations
 type Db(connString: string) =
-
-    member _.Initialize() =
-        use conn = new SqliteConnection(connString)
-
-        conn
-        |> Db.newCommand
-            "CREATE TABLE cliente (
-                id integer PRIMARY KEY NOT NULL,
-                saldo integer NOT NULL,
-                limite integer NOT NULL);
-
-             CREATE TABLE transacao (
-                id SERIAL PRIMARY KEY,
-                valor integer NOT NULL,
-                descricao varchar(10) NOT NULL,
-                realizadaem timestamp NOT NULL,
-                idcliente integer NOT NULL);
-
-             CREATE INDEX ix_transacao_idcliente ON transacao (idcliente ASC);"
-        |> Db.exec
-
-    member _.ResetDb() =
-        use conn = new SqliteConnection(connString)
-
-        conn
-        |> Db.newCommand
-            "delete from transacao;
-             delete from cliente;
-             INSERT INTO cliente (id, saldo, limite) VALUES (1, 0, -100000);
-             INSERT INTO cliente (id, saldo, limite) VALUES (2, 0, -80000);
-             INSERT INTO cliente (id, saldo, limite) VALUES (3, 0, -1000000);
-             INSERT INTO cliente (id, saldo, limite) VALUES (4, 0, -10000000);
-             INSERT INTO cliente (id, saldo, limite) VALUES (5, 0, -500000);"
-        |> Db.exec
 
     //TODO: need to finish this method
     member _.AddTransaction transaction =

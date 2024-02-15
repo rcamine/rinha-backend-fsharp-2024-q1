@@ -7,4 +7,5 @@ type TransactionRequest =
       Descricao: string }
 
 [<CLIMutable>]
+[<Struct>]
 type TransactionResponse = { Limite: int; Saldo: int }

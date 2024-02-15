@@ -3,9 +3,11 @@ module RinhaBackend.App
 open System
 open System.Text.Json
 open System.Text.Json.Serialization
+open DbUp
 open Microsoft.AspNetCore.Builder
 open Microsoft.AspNetCore.Hosting
 open Microsoft.AspNetCore.Http.Timeouts
+open Microsoft.Extensions.Configuration
 open Microsoft.Extensions.Hosting
 open Microsoft.Extensions.Logging
 open Microsoft.Extensions.DependencyInjection
@@ -29,11 +31,30 @@ let configureApp (app: IApplicationBuilder) =
         .UseEndpoints(fun routeBuilder -> routeBuilder.MapGiraffeEndpoints(HttpServer.endpoints))
     |> ignore
 
+let runMigrations (connString: string) =
+    let upgrader =
+        DeployChanges.To
+            .SQLiteDatabase(connString)
+            .WithScriptsFromFileSystem("Migrations")
+            .LogToConsole()
+            .Build()
+
+    upgrader.PerformUpgrade()
+
 
 let configureServices (services: IServiceCollection) =
     services.AddRequestTimeouts(fun options ->
         options.DefaultPolicy <- RequestTimeoutPolicy(Timeout = TimeSpan.FromSeconds(60.0)))
     |> ignore
+
+    let serviceProvider = services.BuildServiceProvider()
+
+    let connString =
+        serviceProvider
+            .GetService<IConfiguration>()
+            .GetConnectionString("DefaultConnection")
+
+    runMigrations connString |> ignore
 
     services.AddRouting() |> ignore
     services.AddGiraffe() |> ignore

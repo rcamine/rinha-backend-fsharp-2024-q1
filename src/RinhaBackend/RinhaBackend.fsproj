@@ -7,6 +7,8 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="dbup-core" Version="5.0.76" />
+    <PackageReference Include="dbup-sqlite" Version="5.0.40" />
     <PackageReference Include="Donald" Version="10.0.2" />
     <PackageReference Include="FSharp.SystemTextJson" Version="1.2.42" />
     <PackageReference Include="Giraffe" Version="6.0.0" />
@@ -25,6 +27,8 @@
   <ItemGroup>
     <Content Include="appsettings.json" />
     <Content Include="db.db" />
+    <Content Include="Migrations\1 - ddl.sql" />
+    <Content Include="Migrations\2 - resetdb.sql" />
   </ItemGroup>
 
 </Project>

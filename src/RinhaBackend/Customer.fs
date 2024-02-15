@@ -1,5 +1,8 @@
 ﻿namespace RinhaBackend
 
+open System.Runtime.CompilerServices
+
+[<IsReadOnly; Struct>]
 type Customer =
     { CustomerId: int
       Limit: int
