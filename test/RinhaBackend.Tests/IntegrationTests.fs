@@ -7,6 +7,7 @@ open Xunit
 let ``My test`` () =
     Assert.True(true)
 
+//TODO: specs
 //Obrigatoriamente, o http status code de requisições para transações bem sucedidas deve ser 200!
 
 //Regras Uma transação de débito nunca pode deixar o saldo do cliente menor que seu limite disponível.

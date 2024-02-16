@@ -4,16 +4,17 @@ open RinhaBackend
 open Xunit
 open FsUnit.Xunit
 
+//TODO: FsCheck / Expecto?
 [<Fact>]
 let ``When debit customer balance shouldn't go beyond his limit and should return Unprocessable`` () =
-    let customer = Customer.create 1 1000 0
-
     let transaction =
-        Transaction.create
-            { Valor = 1001
-              Tipo = "d"
-              Descricao = "Some debit" }
-            customer
+        { Amount = 1001
+          Type = Debit
+          Description = "Some debit"
+          Customer =
+            { CustomerId = 1
+              Limit = 1000
+              Balance = 0 } }
 
     let result = Transaction.validate transaction
 

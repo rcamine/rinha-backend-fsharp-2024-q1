@@ -29,7 +29,6 @@
     <Content Include="appsettings.json" />
     <Content Include="db.db" />
     <Content Include="Migrations\1 - ddl.sql" />
-    <Content Include="Migrations\2 - resetdb.sql" />
   </ItemGroup>
 
 </Project>

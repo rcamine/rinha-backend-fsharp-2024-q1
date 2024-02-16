@@ -16,7 +16,7 @@ let handleAddTransaction (customerId: int) : HttpHandler =
         
         let result =
             db.GetCustomer customerId
-            |> Result.bind (Transaction.createFrom request) 
+            |> Result.bind (Transaction.create request) 
             |> Result.bind Transaction.validate
             |> Result.bind db.AddTransaction
         

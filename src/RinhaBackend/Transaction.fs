@@ -31,7 +31,7 @@ module Transaction =
         | tx when tx.Type = Debit && tx.Customer.Limit < (tx.Customer.Balance + tx.Amount) -> Error Unprocessable
         | _ -> Ok transaction
 
-    let createFrom request customerOption =
+    let create request customerOption =
         match customerOption with
         | None -> Error NotFound
         | Some customer ->
@@ -44,13 +44,3 @@ module Transaction =
                     | _ -> Invalid
                   Description = request.Descricao
                   Customer = customer }
-
-    let create request customer =
-        { Amount = request.Valor
-          Type =
-            match request.Tipo with
-            | "c" -> Credit
-            | "d" -> Debit
-            | _ -> Invalid
-          Description = request.Descricao
-          Customer = customer }
