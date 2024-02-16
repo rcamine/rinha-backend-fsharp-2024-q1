@@ -5,7 +5,7 @@ type TransactionType =
     | Debit
     | Invalid
 
-type Error =
+type TransactionError =
     | Unprocessable
     | NotFound
     | InvalidRequest
@@ -21,13 +21,17 @@ type Transaction =
 module Transaction =
     let validate transaction =
         match transaction with
-        //TODO: check for negative inputs, etc.
-        | transaction when transaction.Type = Invalid -> Error InvalidRequest
-        //TODO: need to finish this validation, this is just a sample, btw should consider credit/debit as well
-        | transaction when transaction.Amount > transaction.Customer.Limit -> Error Unprocessable
+        | tx when
+            tx.Description.Length > 10
+            || tx.Description.Length < 1
+            || tx.Amount <= 0
+            || tx.Type = Invalid
+            ->
+            Error InvalidRequest
+        | tx when tx.Type = Debit && tx.Customer.Limit < (tx.Customer.Balance + tx.Amount) -> Error Unprocessable
         | _ -> Ok transaction
 
-    let create request customerOption =
+    let createFrom request customerOption =
         match customerOption with
         | None -> Error NotFound
         | Some customer ->
@@ -40,3 +44,13 @@ module Transaction =
                     | _ -> Invalid
                   Description = request.Descricao
                   Customer = customer }
+
+    let create request customer =
+        { Amount = request.Valor
+          Type =
+            match request.Tipo with
+            | "c" -> Credit
+            | "d" -> Debit
+            | _ -> Invalid
+          Description = request.Descricao
+          Customer = customer }

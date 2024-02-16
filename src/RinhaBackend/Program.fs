@@ -14,6 +14,18 @@ open Microsoft.Extensions.DependencyInjection
 open Giraffe
 open Giraffe.EndpointRouting
 
+let runMigrations (config: IConfiguration) =
+    let connString = config.GetConnectionString("DefaultConnection")
+
+    let upgrader =
+        DeployChanges.To
+            .SQLiteDatabase(connString)
+            .WithScriptsFromFileSystem("Migrations")
+            .LogToConsole()
+            .Build()
+
+    upgrader.PerformUpgrade()
+
 let genericExceptionHandler (ex: Exception) (logger: ILogger) =
     logger.LogError(ex, "An unhandled exception has occurred while executing the request.")
     clearResponse >=> setStatusCode 500 >=> text ex.Message
@@ -31,17 +43,6 @@ let configureApp (app: IApplicationBuilder) =
         .UseEndpoints(fun routeBuilder -> routeBuilder.MapGiraffeEndpoints(HttpServer.endpoints))
     |> ignore
 
-let runMigrations (connString: string) =
-    let upgrader =
-        DeployChanges.To
-            .SQLiteDatabase(connString)
-            .WithScriptsFromFileSystem("Migrations")
-            .LogToConsole()
-            .Build()
-
-    upgrader.PerformUpgrade()
-
-
 let configureServices (services: IServiceCollection) =
     services.AddRequestTimeouts(fun options ->
         options.DefaultPolicy <- RequestTimeoutPolicy(Timeout = TimeSpan.FromSeconds(60.0)))
@@ -49,12 +50,11 @@ let configureServices (services: IServiceCollection) =
 
     let serviceProvider = services.BuildServiceProvider()
 
-    let connString =
-        serviceProvider
-            .GetService<IConfiguration>()
-            .GetConnectionString("DefaultConnection")
+    let config = serviceProvider.GetService<IConfiguration>()
+    let shouldRunMigrations = config.GetValue<bool>("RunMigrations")
 
-    runMigrations connString |> ignore
+    if shouldRunMigrations then
+        runMigrations config |> ignore
 
     services.AddRouting() |> ignore
     services.AddGiraffe() |> ignore

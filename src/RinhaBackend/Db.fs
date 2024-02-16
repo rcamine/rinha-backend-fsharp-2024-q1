@@ -5,7 +5,7 @@ open Microsoft.Data.Sqlite
 
 type Db(connString: string) =
 
-    //TODO: need to finish this method
+    //TODO: need to finish this method... maybe a procedure/db-function? :/
     member _.AddTransaction transaction =
         use conn = new SqliteConnection(connString)
 
@@ -42,3 +42,5 @@ type Db(connString: string) =
             |> Ok
         with ex ->
             Error(DbError ex.Message)
+    
+    //TODO: ResetDb as fn
