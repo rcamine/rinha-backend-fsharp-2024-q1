@@ -1,15 +1,15 @@
-﻿module RinhaBackend.Db
+﻿module RinhaBackend.RinhaDb
 
 open Donald
 open Microsoft.Data.Sqlite
 
-type Db(connString: string) =
+type RinhaDb(connString: string) =
 
     //TODO: need to finish this method... maybe a procedure/db-function? :/
     member _.AddTransaction transaction =
-        use conn = new SqliteConnection(connString)
-
         try
+            use conn = new SqliteConnection(connString)
+            
             conn
             |> Db.newCommand "UPDATE cliente SET saldo = saldo + @valor WHERE id = @customerId"
             |> Db.setParams
@@ -32,9 +32,9 @@ type Db(connString: string) =
             Error(DbError ex.Message)
 
     member _.GetCustomer customerId =
-        use conn = new SqliteConnection(connString)
-
         try
+            use conn = new SqliteConnection(connString)
+
             conn
             |> Db.newCommand "SELECT id, saldo, limite FROM cliente WHERE id = @customerId"
             |> Db.setParams [ "@customerId", SqlType.Int customerId ]
@@ -42,22 +42,3 @@ type Db(connString: string) =
             |> Ok
         with ex ->
             Error(DbError ex.Message)
-    
-    member _.ResetDb () =
-        use conn = new SqliteConnection(connString)
-        conn
-        |> Db.newCommand "
-            delete from transacao;
-            delete from cliente;
-
-            INSERT INTO cliente (id, saldo, limite)
-            VALUES (1, 0, 100000);
-            INSERT INTO cliente (id, saldo, limite)
-            VALUES (2, 0, 80000);
-            INSERT INTO cliente (id, saldo, limite)
-            VALUES (3, 0, 1000000);
-            INSERT INTO cliente (id, saldo, limite)
-            VALUES (4, 0, 10000000);
-            INSERT INTO cliente (id, saldo, limite)
-            VALUES (5, 0, 500000);"
-        |> Db.exec

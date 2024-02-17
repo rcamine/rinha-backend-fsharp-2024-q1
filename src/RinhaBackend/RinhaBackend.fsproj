@@ -20,7 +20,7 @@
     <Compile Include="Wire.fs" />
     <Compile Include="Customer.fs" />
     <Compile Include="Transaction.fs" />
-    <Compile Include="Db.fs" />
+    <Compile Include="RinhaDb.fs" />
     <Compile Include="HttpServer.fs" />
     <Compile Include="Program.fs" />
   </ItemGroup>

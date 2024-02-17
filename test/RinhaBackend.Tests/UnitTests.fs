@@ -1,4 +1,4 @@
-module UnitTests
+module RinhaBackend.Tests.UnitTests
 
 open RinhaBackend
 open Xunit

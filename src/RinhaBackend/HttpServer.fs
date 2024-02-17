@@ -1,17 +1,17 @@
 module RinhaBackend.HttpServer
 
-open Db
+open RinhaDb
 open Giraffe
 open Giraffe.EndpointRouting
 open Microsoft.AspNetCore.Http
 open Microsoft.Extensions.Configuration
 
-// Handlers
 let handleGetStatement (clientId: int) : HttpHandler = (text $"{clientId}")
 
+//TODO: logs
 let handleAddTransaction (customerId: int) : HttpHandler =
     fun (next: HttpFunc) (ctx: HttpContext) ->
-        let db = ctx.GetService<IConfiguration>().GetConnectionString("DefaultConnection") |> Db
+        let db = ctx.GetService<IConfiguration>().GetConnectionString("DefaultConnection") |> RinhaDb
         let request = ctx.BindJsonAsync<TransactionRequest>().Result
         
         let result =
@@ -27,7 +27,6 @@ let handleAddTransaction (customerId: int) : HttpHandler =
         | Error Unprocessable -> RequestErrors.UNPROCESSABLE_ENTITY "" next ctx
         | Error (DbError _) -> ServerErrors.INTERNAL_ERROR "" next ctx
 
-// Endpoints
 let endpoints =
     [ GET [ routef "/clientes/%i/extrato/" handleGetStatement ]
       POST [ routef "/clientes/%i/transacoes" handleAddTransaction ] ]
